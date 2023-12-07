@@ -14,6 +14,8 @@
 #include <string>
 #include "fmt/core.h"
 
+constexpr const char *GEAR_SYMBOL = "*";
+
 enum class PartType {
     DIGIT,
     SYMBOL
@@ -49,5 +51,9 @@ void parse_engine_schematic_row(const std::string &line, EngineSchematic &schema
 
 uint32_t get_engine_parts_sum(const EngineSchematic &schematic);
 uint32_t get_adjacent_parts_sum(const EngineSchematic &schematic, const std::pair<size_t, size_t> &row_range, const std::pair<size_t, size_t> &pos_range);
+
+
+uint32_t get_engine_gear_ratios_sum(const EngineSchematic &schematic);
+uint32_t get_gear_ratio(const EngineSchematic &schematic, const std::pair<size_t, size_t> &row_range, const std::pair<size_t, size_t> &pos_range);
 
 #endif //PUZZLE_H
