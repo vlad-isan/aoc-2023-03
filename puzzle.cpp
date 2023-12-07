@@ -76,13 +76,7 @@ int do_puzzle_1(std::ifstream &file) {
         parse_engine_schematic_row(line, schematic);
     }
 
-    // TODO: Iterate over all the symbols and for every symbol,
-    // create a range of rows to search for parts and a position span to search for in those rows
-    // eg: for row i, pos x (only one position per symbol as we only have one-char symbols), we search for parts in rows <i-1, i+1>
-    // and search for parts whose positions intersect <x-1, x+1>
-
-
-    return 0;
+    return get_engine_parts_sum(schematic);
 }
 
 int do_puzzle_2(std::ifstream &file) {
@@ -106,17 +100,53 @@ void parse_engine_schematic_row(const std::string &line, EngineSchematic &schema
     for (std::sregex_iterator i = begin; i != end; ++i) {
         const std::smatch &match = *i;
         const std::string value = match.str();
+
         const bool is_part = std::ranges::all_of(value, [](char c) {
             return std::isdigit(c);
         });
-        int start_pos = match.position();
-        int end_pos = start_pos + value.size();
+
+        size_t start_pos = match.position() - (is_part ? 0 : 1);
+        size_t end_pos = start_pos + value.size() + (is_part ? -1 : 1);
 
         auto pos = std::make_pair(start_pos, end_pos);
+
         row.parts.emplace_back<EnginePart>({
             .value = value, .type = is_part ? PartType::DIGIT : PartType::SYMBOL, .pos = pos
         });
     }
 
     schematic.rows.emplace_back(row);
+}
+
+uint32_t get_engine_parts_sum(const EngineSchematic &schematic) {
+    uint32_t sum = 0;
+    size_t row_index = 0;
+
+    for(const auto &row: schematic.rows) {
+        for(const auto &part: row.parts | std::views::filter([&](const auto &part_el) {
+            return part_el.type == PartType::SYMBOL;
+        })) {
+            auto row_range = std::make_pair(row_index > 0 ? row_index - 1 : row_index, row_index + 1);
+            sum += get_adjacent_parts_sum(schematic, row_range, part.pos);
+        }
+
+        row_index++;
+    }
+
+    return sum;
+}
+
+uint32_t get_adjacent_parts_sum(const EngineSchematic &schematic, const std::pair<size_t, size_t> &row_range, const std::pair<size_t, size_t> &pos_range) {
+    uint32_t sum = 0;
+    auto subrange = schematic.rows | std::views::drop(row_range.first) | std::views::take((row_range.second - row_range.first) + 1);
+
+    for(const auto &row: subrange) {
+        for(const auto &part: row.parts | std::views::filter([&](const auto &part_el) {
+            return part_el.type == PartType::DIGIT && (part_el.pos.first <= pos_range.second && pos_range.first <= part_el.pos.second);
+        })) {
+            sum += std::stoi(part.value);
+        }
+    }
+
+    return sum;
 }

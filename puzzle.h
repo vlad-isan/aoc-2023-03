@@ -22,7 +22,7 @@ enum class PartType {
 struct EnginePart {
     std::string value;
     PartType type;
-    std::pair<int, int> pos;
+    std::pair<size_t, size_t> pos;
 };
 
 struct EngineRow {
@@ -46,5 +46,8 @@ int do_puzzle_1(std::ifstream &file);
 int do_puzzle_2(std::ifstream &file);
 
 void parse_engine_schematic_row(const std::string &line, EngineSchematic &schematic);
+
+uint32_t get_engine_parts_sum(const EngineSchematic &schematic);
+uint32_t get_adjacent_parts_sum(const EngineSchematic &schematic, const std::pair<size_t, size_t> &row_range, const std::pair<size_t, size_t> &pos_range);
 
 #endif //PUZZLE_H
