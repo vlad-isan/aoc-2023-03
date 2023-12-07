@@ -19,7 +19,7 @@ std::string get_base_file_path() {
 
 TEST(AOC, PUZZLE_SAMPLE_1) {
     fmt::println("{}", base_file_path);
-    EXPECT_EQ(puzzle_sample_1(get_base_file_path()), 0);
+    EXPECT_EQ(puzzle_sample_1(get_base_file_path()), 4361);
 }
 
 TEST(AOC, PUZZLE_SAMPLE_2) {
